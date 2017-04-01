@@ -1,4 +1,4 @@
-,# Log Files
+# Log Files
 
  Sample log files used to initially test the FTPLogReader. Overfitting will likely be a huge problem for these log files. In the future, more robust log files will have to be created since these log files are rather small compared to those that would be generated in reality.
  
