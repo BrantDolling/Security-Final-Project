@@ -18,7 +18,6 @@ where "user" was replaced by various users, both existant and nonexistant. Note 
  
  - attack.log : Connection attempts made by hydra.
  
- - mixed.log  : Both normal connections and attempts made by hydra. IP addresses 192.168.56.105, 192.168.56.111, 192.168.56.108, 192.168.56.106, 192.168.56.109 attacked the server. 
- IP addresses 192.168.56.102, 192.168.56.103, 192.168.56.104, 192.168.56.107, 192.168.56.100 were normal connections. 
+ - mixed.log  : Both normal connections and attempts made by hydra. Created using the FTP fake traffic creator. IP addresses are stored in ips.txt
  
  
