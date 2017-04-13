@@ -111,7 +111,7 @@ class FTPLogReader:
                     username = ""
                 inner_list.append(username)
                 inner_list.append(dict["ip"])
-                inner_list.append(unix_time_seconds(dict["datetime"]))
+                inner_list.append(unix_time_seconds(str(dict["datetime"])))
                 new_tensor.append(inner_list)
             ips[key]=new_tensor
 
