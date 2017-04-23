@@ -1,0 +1,13 @@
+ERROR:apscheduler.executors.default:Job "readLogFile (trigger: interval[0:00:05], next run at: 2017-04-22 23:11:49 MDT)" raised an exception
+Traceback (most recent call last):
+  File "C:\Users\caleb\AppData\Local\Programs\Python\Python35\lib\site-packages\apscheduler\executors\base.py", line 125, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+  File "C:/Users/caleb/Documents/GitHub/Security-Final-Project/FTPLogReader/FTPLogReaderTest.py", line 23, in readLogFile
+    for line in reader.getConnectionTensors():
+  File "C:\Users\caleb\Documents\GitHub\Security-Final-Project\FTPLogReader\FTPLogReader.py", line 36, in getConnectionTensors
+    ips_int = self.__convertToTensor__(ips)
+  File "C:\Users\caleb\Documents\GitHub\Security-Final-Project\FTPLogReader\FTPLogReader.py", line 114, in __convertToTensor__
+    inner_list.append(unix_time_seconds(str(dict["datetime"])))
+  File "C:\Users\caleb\Documents\GitHub\Security-Final-Project\FTPLogReader\FTPLogReader.py", line 192, in unix_time_seconds
+    return (dt - epoch).total_seconds()
+TypeError: unsupported operand type(s) for -: 'str' and 'datetime.datetime'
