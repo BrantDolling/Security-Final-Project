@@ -5,6 +5,10 @@ import numpy as np
 
 from functions import *
 
+#K means might not work
+# Might not work with categorical information: https://arxiv.org/ftp/cs/papers/0603/0603120.pdf
+# Note for report: data is influenced by initial data and does only go for local minimums
+
 n_features = 2
 n_clusters = 2
 n_samples_per_cluster = 2
@@ -14,6 +18,7 @@ max_iterations = 1
 stop_threshold = 1
 
 #TODO: Create samples from FTP log files.
+#Store connection attempts as [average-datetime-difference,average status 1, average status 2, average status 3, . . .]
 #code started in functions.py get_FTP_tensors("LogFiles/mixed.log")
 #get_FTP_tensors(n_clusters,seed,"LogFiles/mixed.log")
 
@@ -31,15 +36,15 @@ with tf.Session() as session:
 
     #Run the initial set up
     sample_values = session.run(samples)
-    print(sample_values)
 
     # Run the update.
     for _ in range(max_iterations):
 
         #TODO: feed new centroids back into the algorithm.
+        #TODO: FIgure out what partitions is returning. Figure out how to get sample clusters back.
         updated_centroid_value, new_samples = session.run(updated_centroids)
-
-        #print(new_samples)
+        print(sample_values)
+        print(new_samples)
         #plot_clusters(sample_values, updated_centroid_value, n_samples_per_cluster)
 
         #Stopping condition.
@@ -48,9 +53,12 @@ with tf.Session() as session:
 
 
 
-#TODO: Create function to check accuracy. Function will both have to determine which cluster is the "Attack" and then determine
-#the number of errors within each attack. Attack versus non-attack ips are found in the file ips.text. IP address is the first field in the
+#TODO: Create function to check accuracy. Function will both have to determine the percentage of attack versus non attack in each cluster.
+#  Attack versus non-attack ips are found in the file ips.text. IP address is the first field in the
 #connection tensor.
+#List of attack ips and user ips.
+# Future useage, remember list of attack ips.
+#Then look at returned samples and dermine the percentage of attack ips/user ips in each.
 
 #plot
 plot_clusters(sample_values, updated_centroid_value, n_samples_per_cluster)

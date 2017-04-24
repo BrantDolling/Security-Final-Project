@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from FTPLogReader.FTPLogReader import FTPLogReader
 
-#TODO: Modify so that code works with created amples
+#TODO: Modify so that code works with created samples
 
 
 
@@ -26,6 +26,9 @@ def get_FTP_tensors(n_clusters,seed,log_file):
         connections.append(line)
 
     #TODO Assign each connection to random centroid
+    #input = tf.placeholder(tf.string,[None,4])
+
+
     #Create placeholder/feed_dict to hold connections and correctly return this so that it can used.
 
     return connections
@@ -85,6 +88,7 @@ def plot_clusters(all_samples, centroids, n_samples_per_cluster):
          plt.plot(centroid[0], centroid[1], markersize=30, marker="x", color='m', mew=5)
      plt.show()
 
+#This will be the same in our final version
 def choose_random_centroids(samples, n_clusters):
     # Step 0: Initialisation: Select `n_clusters` number of random points
     n_samples = tf.shape(samples)[0]
@@ -109,8 +113,7 @@ def assign_to_nearest(samples, centroids):
     expanded_centroids = tf.expand_dims(centroids, 1)
 
     #Calculating the distances.
-    distances = tf.reduce_sum( tf.square(
-               tf.subtract(expanded_vectors, expanded_centroids)), 2)
+    distances = tf.reduce_sum( tf.square(tf.subtract(expanded_vectors, expanded_centroids)), 2)
     mins = tf.argmin(distances, 0)
 
     # END from http://esciencegroup.com/2016/01/05/an-encounter-with-googles-tensorflow/
