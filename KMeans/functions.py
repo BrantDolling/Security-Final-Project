@@ -14,32 +14,20 @@ from FTPLogReader.FTPLogReader import FTPLogReader
    Will have to be fed in through a feed dict
    Args:
         nclusters (int): number of clusters.
-        seed (int): seed used to create random clusters.
         log_file (string): FTP Log file.
     Returns: connection_tensor, centroid_tensor"""
-def get_FTP_tensors(n_clusters,seed,log_file):
-    np.random.seed(seed)
-    connections = []
-    centroids = []
+def get_FTP_tensors(log_file):
     reader = FTPLogReader(log_file, 0)
-    for line in reader.getConnectionTensors():
-        connections.append(line)
+    connections = reader.getConnectionTensors()
 
-    #TODO Assign each connection to random centroid
-    #input = tf.placeholder(tf.string,[None,4])
-
-
-    #Create placeholder/feed_dict to hold connections and correctly return this so that it can used.
-
-    return connections
+    #Thing is just named samples to keep it consistent with prior code.
+    return tf.concat(connections,0,name='samples')
 
 #Returns true if the sum of the connections within a centroid drops below a certain value.
 #TODO: Figure out how to determine a good threshold.
 #A stopping condition is described here :https://nlp.stanford.edu/IR-book/html/htmledition/k-means-1.html
  #Bascially take the sum of distances in each cluster and attempt to get that value below a threshold.
 def should_stop(n_samples_per_cluster,connections,centroids,threshold):
-
-
     #Calculate the sum
     sum = 0
     for i, centroid in enumerate(centroids):
@@ -66,7 +54,7 @@ def create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_facto
         #Creates random centroid
         current_centroid = (np.random.random((1, n_features)) * embiggen_factor) - (embiggen_factor/2)
         centroids.append(current_centroid)
-        #Add centroid to the end of the samples list
+        #Make samples center around this centroid
         samples += current_centroid
         #centroid is the same as the sample
         slices.append(samples)

@@ -2,7 +2,9 @@ import re
 import os.path
 import logging
 import datetime
+import netaddr
 from time import ctime
+from functools import reduce
 
 
 __author__ = "Caleb Whitman"
@@ -28,14 +30,57 @@ class FTPLogReader:
 
     """ Returns tensors from the logfile representing the connection information.
          Returns:
-            [ [4] ]: A list of connections. Each list contains all connections for a particular IP address."""
+            [ [5] ]: A list of connections. [[ip,average_datetime_difference,ok_login_average,connect_average,fail_login_average ]]"""
     def getConnectionTensors(self):
         dict = self.__parseLogFile__()
         conn_dict = self.__getConnections__(dict)
         ips = self.__sortByIP__(conn_dict)
-        ips_int = self.__convertToTensor__(ips)
-        for key in ips:
-            yield ips_int[key]
+        connections = self.__combineConnections__(ips)
+
+        return connections
+
+    #Converts the given ip into an interger.
+    def turnIptoInt(self,string_ip):
+        return int(netaddr.IPAddress('192.168.4.54'))
+
+    """Takes a list of ips and combines all connections within that IP list.
+       Returns: [[ip,average_datetime_difference,ok_login_average,connect_average,fail_login_average ]]"""
+    def __combineConnections__(self,ips):
+
+        result_list=[]
+        for ip in ips:
+            connection=[]
+            datetimes=[]
+
+            #getting connection values
+            ok_login_num=0
+            connect_num = 0
+            fail_login_num = 0
+            total_connections = 0
+            for dict in ips[ip]:
+                if(dict["status"] == "OK LOGIN"):
+                    ok_login_num+=1
+                if(dict["status"] == "CONNECT"):
+                    connect_num+=1
+                if(dict["status"] == "FAIL LOGIN"):
+                    fail_login_num+=1
+                datetimes.append(unix_time_seconds(dict["datetime"]))
+                total_connections+=1
+
+            #appending everything to connection
+            connection.append(self.turnIptoInt(ip))
+            datetime_diffs = []
+            datetimes.sort()
+            for i in range(1,len(datetimes)):
+                datetime_diffs.append(datetimes[i]-datetimes[i-1])
+            connection.append(reduce(lambda x, y: x + y, datetime_diffs) / float(len(datetime_diffs)))
+            connection.append(ok_login_num/total_connections)
+            connection.append(connect_num/total_connections)
+            connection.append(fail_login_num/total_connections)
+
+            result_list.append(connection)
+        return result_list
+
 
     """Parses the logfile and returns a list of dictionaries representing every line.
         Returns:
@@ -91,33 +136,6 @@ class FTPLogReader:
             else:
                 result[dict["ip"]]=[dict]
         return result
-
-    """ Converts all dictionaries into a list for processing.
-             Args:
-                    dictionaries {ip:[{}]}: The list of dictionaries representing the ip addresses.
-            Returns:
-                {ip:[[]]}: A dictionary holding the list representing the tensor for that ip.
-                """
-    def __convertToTensor__(self, ips):
-
-        for key in ips:
-            tensor = ips[key]
-            new_tensor=[]
-            for dict in tensor:
-                inner_list=[]
-                inner_list.append(dict["status"])
-                username = dict["username"]
-                if username is None:
-                    username = ""
-                inner_list.append(username)
-                inner_list.append(dict["ip"])
-                inner_list.append(str(unix_time_seconds(dict["datetime"])))
-                new_tensor.append(inner_list)
-            ips[key]=new_tensor
-
-        return ips
-
-
 
     """ Parses the line and returns a dictionary representing that line.
         Returns:

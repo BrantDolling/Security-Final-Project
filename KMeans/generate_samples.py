@@ -18,12 +18,12 @@ max_iterations = 1
 stop_threshold = 1
 
 #TODO: Create samples from FTP log files.
-#Store connection attempts as [average-datetime-difference,average status 1, average status 2, average status 3, . . .]
+#Store connection attempts as [ip,average_datetime_difference,ok_login_average,connect_average,fail_login_average]
 #code started in functions.py get_FTP_tensors("LogFiles/mixed.log")
-#get_FTP_tensors(n_clusters,seed,"LogFiles/mixed.log")
+samples = get_FTP_tensors("LogFiles/mixed.log")
 
 #Create variables/samples
-data_centroids, samples = create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed)
+#real_centroids,samples = create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed)
 initial_centroids = choose_random_centroids(samples, n_clusters)
 nearest_indices = assign_to_nearest(samples, initial_centroids)
 updated_centroids = update_centroids(samples, nearest_indices, n_clusters)
