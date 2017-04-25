@@ -22,18 +22,19 @@ def get_FTP_tensors(log_file):
     connections = reader.getConnectionTensors()
 
     #Thing is just named samples to keep it consistent with prior code.
-    return tf.concat(connections,0,name='samples')
+    return tf.concat([connections],0,name='samples')
 
 #Returns true if the sum of the connections within a centroid drops below a certain value.
 #TODO: Figure out how to determine a good threshold.
 #A stopping condition is described here :https://nlp.stanford.edu/IR-book/html/htmledition/k-means-1.html
  #Bascially take the sum of distances in each cluster and attempt to get that value below a threshold.
-def should_stop(n_samples_per_cluster,connections,centroids,threshold):
+def should_stop(connection_groups,centroids,threshold):
+
     #Calculate the sum
     sum = 0
     for i, centroid in enumerate(centroids):
-        # Grab just the samples for the given cluster
-        samples = connections[i * n_samples_per_cluster:(i + 1) * n_samples_per_cluster]
+        # Grab just the samples for the given cluster. np.delete removes the IP addresses.
+        samples = np.delete(connection_groups[i],0,axis=1)
         distances = np.sum(np.square(samples-centroid),1)
 
         sum += np.sum(distances)
@@ -50,8 +51,7 @@ def create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_facto
     # Create samples for each cluster
     for i in range(n_clusters):
         #Creates a bunch of random points with normal distribution.
-        samples = tf.random_normal((n_samples_per_cluster, n_features),
-                                   mean=0.0, stddev=5.0, dtype=tf.float32, seed=seed, name="cluster_{}".format(i))
+        samples = tf.random_normal((n_samples_per_cluster, n_features),mean=0.0, stddev=5.0, dtype=tf.float32, seed=seed, name="cluster_{}".format(i))
         #Creates random centroid
         current_centroid = (np.random.random((1, n_features)) * embiggen_factor) - (embiggen_factor/2)
         centroids.append(current_centroid)
@@ -64,14 +64,16 @@ def create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_facto
     centroids = tf.concat(centroids, 0, name='centroids')
     return centroids, samples
 
-def plot_clusters(all_samples, centroids, n_samples_per_cluster):
+#TODO: Find a nice way to represent these.
+#Right now plots Ip versus the sum of the statuses
+def plot_clusters(connection_groups, centroids):
      #Plot out the different clusters
      #Choose a different colour for each cluster
      colour = plt.cm.rainbow(np.linspace(0,1,len(centroids)))
      for i, centroid in enumerate(centroids):
          #Grab just the samples for the given cluster and plot them out with a new colour
-         samples = all_samples[i*n_samples_per_cluster:(i+1)*n_samples_per_cluster]
-         plt.scatter(samples[:,0], samples[:,1], c=colour[i])
+         samples = connection_groups[i]
+         plt.scatter(samples[:,1], samples[:,2]+samples[:,3]+samples[:,4], c=colour[i])
          #Also plot centroid
          plt.plot(centroid[0], centroid[1], markersize=35, marker="x", color='k', mew=10)
          plt.plot(centroid[0], centroid[1], markersize=30, marker="x", color='m', mew=5)
@@ -79,8 +81,13 @@ def plot_clusters(all_samples, centroids, n_samples_per_cluster):
 
 #This will be the same in our final version
 def choose_random_centroids(samples, n_clusters):
+
+    #Remove the IP addresses from the calculation
+    samples = removeIps(samples)
+
     # Step 0: Initialisation: Select `n_clusters` number of random points
-    n_samples = tf.shape(samples)[0]
+    #Have to subtract one here to ignore IP addresses.
+    n_samples = tf.subtract(tf.shape(samples)[0],tf.constant(1,dtype=tf.int32))
     random_indices = tf.random_shuffle(tf.range(0, n_samples))
     begin = [0,]
     size = [n_clusters,]
@@ -95,9 +102,11 @@ def choose_random_centroids(samples, n_clusters):
 #For example, [ 0,5,1,1...] indicates taht the first sample is closest to the first centroid, the second sample is closest to the 6th etc.
 def assign_to_nearest(samples, centroids):
 
+    #Remove the IP addresses from the calculation
+    samples = removeIps(samples)
 
     # START from http://esciencegroup.com/2016/01/05/an-encounter-with-googles-tensorflow/
-    #Changing the size of the vectors so that the subtraction works out.
+    #Adding a dimension to the vectors so that they can be correctly reduced.
     expanded_vectors = tf.expand_dims(samples, 0)
     expanded_centroids = tf.expand_dims(centroids, 1)
 
@@ -110,12 +119,17 @@ def assign_to_nearest(samples, centroids):
     return nearest_indices
 
 def update_centroids(samples, nearest_indices, n_clusters):
+
     # Updates the centroid to be the mean of all samples associated with it.
     nearest_indices = tf.to_int32(nearest_indices)
     partitions = tf.dynamic_partition(samples, nearest_indices, n_clusters)
-    new_centroids = tf.concat([tf.expand_dims(tf.reduce_mean(partition, 0), 0) for partition in partitions], 0)
+    new_centroids = tf.concat([tf.expand_dims(tf.reduce_mean( removeIps(partition), 0), 0) for partition in partitions], 0)
     return new_centroids,partitions
 
-    #Converts the given ip into an interger.
-    def turnIptoInt(self,string_ip):
-        return int(netaddr.IPAddress('192.168.4.54'))
+#Converts the given ip into an interger.
+def turnIptoInt(string_ip):
+    return int(netaddr.IPAddress('192.168.4.54'))
+
+#Removes the ip address from the given tensor
+def removeIps(tensor):
+    return tf.slice(tensor,[0,1],[-1,4])

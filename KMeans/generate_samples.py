@@ -19,11 +19,9 @@ stop_threshold = 1
 
 #Create variables/samples
 
-#samples = get_FTP_tensors("LogFiles/mixed.log")
-#n_features =5
+samples = get_FTP_tensors("LogFiles/mixed.log")
 
-
-real_centroids,samples = create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed)
+#real_centroids,samples = create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed)
 initial_centroids = choose_random_centroids(samples, n_clusters)
 nearest_indices = assign_to_nearest(samples, initial_centroids)
 updated_centroids = update_centroids(samples, nearest_indices, n_clusters)
@@ -33,22 +31,21 @@ model = tf.global_variables_initializer()
 
 #Run tensorflow
 with tf.Session() as session:
-
     #Run the initial set up
     sample_values = session.run(samples)
-
     # Run the update.
     for _ in range(max_iterations):
 
         #TODO: feed new centroids back into the algorithm.
-        #TODO: FIgure out what partitions is returning. Figure out how to get sample clusters back.
-        updated_centroid_value, new_samples = session.run(updated_centroids)
-        print(sample_values)
-        print(new_samples)
+        #TODO: Figure out what partitions is returning. Figure out how to get sample clusters back.
+        updated_centroid_value,connection_groups = session.run(updated_centroids)
+
+        #print(sample_values)
+        #print(new_samples)
         #plot_clusters(sample_values, updated_centroid_value, n_samples_per_cluster)
 
         #Stopping condition.
-        if should_stop(n_samples_per_cluster ,sample_values, updated_centroid_value, stop_threshold):
+        if should_stop(connection_groups, updated_centroid_value,stop_threshold):
             break
 
 
@@ -60,6 +57,9 @@ with tf.Session() as session:
 # Future useage, remember list of attack ips.
 #Then look at returned samples and dermine the percentage of attack ips/user ips in each.
 #To turn string ips to ints. Do turnIptoInt(string_ip).
+#sample_values is a list that stores the connections as [ip,average_datetime_diff,...] etc. ip is always the first value.
+#Group 1 can be accessed with connection_groups[0].
+#Group 2 can be accessed with connection_groups[1].
 
 #plot
-plot_clusters(sample_values, updated_centroid_value, n_samples_per_cluster)
+plot_clusters(connection_groups, updated_centroid_value)
