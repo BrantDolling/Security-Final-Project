@@ -2,6 +2,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 import tensorflow as tf
 import numpy as np
+import netaddr
 import matplotlib.pyplot as plt
 from FTPLogReader.FTPLogReader import FTPLogReader
 
@@ -15,7 +16,7 @@ from FTPLogReader.FTPLogReader import FTPLogReader
    Args:
         nclusters (int): number of clusters.
         log_file (string): FTP Log file.
-    Returns: connection_tensor, centroid_tensor"""
+    Returns: connection_tensor """
 def get_FTP_tensors(log_file):
     reader = FTPLogReader(log_file, 0)
     connections = reader.getConnectionTensors()
@@ -114,3 +115,7 @@ def update_centroids(samples, nearest_indices, n_clusters):
     partitions = tf.dynamic_partition(samples, nearest_indices, n_clusters)
     new_centroids = tf.concat([tf.expand_dims(tf.reduce_mean(partition, 0), 0) for partition in partitions], 0)
     return new_centroids,partitions
+
+    #Converts the given ip into an interger.
+    def turnIptoInt(self,string_ip):
+        return int(netaddr.IPAddress('192.168.4.54'))

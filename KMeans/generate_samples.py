@@ -17,13 +17,13 @@ embiggen_factor = 70
 max_iterations = 1
 stop_threshold = 1
 
-#TODO: Create samples from FTP log files.
-#Store connection attempts as [ip,average_datetime_difference,ok_login_average,connect_average,fail_login_average]
-#code started in functions.py get_FTP_tensors("LogFiles/mixed.log")
-samples = get_FTP_tensors("LogFiles/mixed.log")
-
 #Create variables/samples
-#real_centroids,samples = create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed)
+
+#samples = get_FTP_tensors("LogFiles/mixed.log")
+#n_features =5
+
+
+real_centroids,samples = create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed)
 initial_centroids = choose_random_centroids(samples, n_clusters)
 nearest_indices = assign_to_nearest(samples, initial_centroids)
 updated_centroids = update_centroids(samples, nearest_indices, n_clusters)
@@ -59,6 +59,7 @@ with tf.Session() as session:
 #List of attack ips and user ips.
 # Future useage, remember list of attack ips.
 #Then look at returned samples and dermine the percentage of attack ips/user ips in each.
+#To turn string ips to ints. Do turnIptoInt(string_ip).
 
 #plot
 plot_clusters(sample_values, updated_centroid_value, n_samples_per_cluster)
