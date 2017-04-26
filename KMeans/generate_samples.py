@@ -48,18 +48,41 @@ with tf.Session() as session:
         if should_stop(connection_groups, updated_centroid_value,stop_threshold):
             break
 
+#Determining the accuracy. Note, that due to a rounding error, the ip address values are changed when paritioned
+#and so all ips are sorted into the Bad Ips.
+
+ipFileReader = open("ips.txt", "r")
+ipString = ipFileReader.readline()
+goodIPs=[]
+
+while True:
+    ipString = ipFileReader.readline().replace("\n","")
+    if(ipString == "attack ips"):
+        break
+    goodIPs.append(turnIptoInt(ipString))
 
 
-#TODO: Create function to check accuracy. Function will both have to determine the percentage of attack versus non attack in each cluster.
-#  Attack versus non-attack ips are found in the file ips.text. IP address is the first field in the
-#connection tensor.
-#List of attack ips and user ips.
-# Future useage, remember list of attack ips.
-#Then look at returned samples and dermine the percentage of attack ips/user ips in each.
-#To turn string ips to ints. Do turnIptoInt(string_ip).
-#sample_values is a list that stores the connections as [ip,average_datetime_diff,...] etc. ip is always the first value.
-#Group 1 can be accessed with connection_groups[0].
-#Group 2 can be accessed with connection_groups[1].
+goodCount=0
+badCount=0
+
+for ip in connection_groups[0]:
+    if ( ip[0] in goodIPs ):
+        goodCount+=1
+    else:
+        badCount+=1
+
+print("Group 1 has %s good Ips out of 100 and %s Bad Ips out of 20."%(goodCount,badCount))
+
+goodCount=0
+badCount=0
+
+for ip in connection_groups[1]:
+    if ( ip[0] in goodIPs ):
+        goodCount+=1
+    else:
+        badCount+=1
+
+print("Group 2 has %s good Ips out of 100 and %s Bad Ips out of 20." % (goodCount, badCount))
 
 #plot
 plot_clusters(connection_groups, updated_centroid_value)
