@@ -21,8 +21,7 @@ def get_FTP_tensors(log_file):
     reader = FTPLogReader(log_file, 0)
     connections = reader.getConnectionTensors()
 
-    #Thing is just named samples to keep it consistent with prior code.
-    return tf.concat([connections],0,name='samples')
+    return tf.constant(connections,dtype=tf.double)
 
 #Returns true if the sum of the connections within a centroid drops below a certain value.
 #TODO: Figure out how to determine a good threshold.
@@ -128,7 +127,7 @@ def update_centroids(samples, nearest_indices, n_clusters):
 
 #Converts the given ip into an interger.
 def turnIptoInt(string_ip):
-    return int(netaddr.IPAddress('192.168.4.54'))
+    return int(netaddr.IPAddress(string_ip))
 
 #Removes the ip address from the given tensor
 def removeIps(tensor):

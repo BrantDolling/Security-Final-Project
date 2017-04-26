@@ -20,6 +20,9 @@ stop_threshold = 1
 #Create variables/samples
 
 samples = get_FTP_tensors("LogFiles/mixed.log")
+with tf.Session() as session:
+    #Run the initial set up
+    sample_values = session.run(samples)
 
 #real_centroids,samples = create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed)
 initial_centroids = choose_random_centroids(samples, n_clusters)
@@ -50,7 +53,6 @@ with tf.Session() as session:
 
 #Determining the accuracy. Note, that due to a rounding error, the ip address values are changed when paritioned
 #and so all ips are sorted into the Bad Ips.
-
 ipFileReader = open("ips.txt", "r")
 ipString = ipFileReader.readline()
 goodIPs=[]
@@ -61,12 +63,11 @@ while True:
         break
     goodIPs.append(turnIptoInt(ipString))
 
-
 goodCount=0
 badCount=0
-
+print(goodIPs)
 for ip in connection_groups[0]:
-    if ( ip[0] in goodIPs ):
+    if ( int(ip[0]) in goodIPs ):
         goodCount+=1
     else:
         badCount+=1
@@ -77,7 +78,7 @@ goodCount=0
 badCount=0
 
 for ip in connection_groups[1]:
-    if ( ip[0] in goodIPs ):
+    if ( int(ip[0]) in goodIPs ):
         goodCount+=1
     else:
         badCount+=1

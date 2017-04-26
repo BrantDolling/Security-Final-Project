@@ -41,7 +41,7 @@ class FTPLogReader:
 
     #Converts the given ip into an interger.
     def turnIptoInt(self,string_ip):
-        return int(netaddr.IPAddress('192.168.4.54'))
+        return float(int(netaddr.IPAddress(string_ip)))
 
     """Takes a list of ips and combines all connections within that IP list.
        Returns: [[ip,average_datetime_difference,ok_login_average,connect_average,fail_login_average ]]"""
