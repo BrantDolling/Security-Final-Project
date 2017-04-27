@@ -14,7 +14,7 @@ n_clusters = 2
 n_samples_per_cluster = 2
 seed = 700
 embiggen_factor = 70
-max_iterations = 1
+max_iterations = 100
 stop_threshold = 1
 
 #Create variables/samples
@@ -39,51 +39,41 @@ with tf.Session() as session:
     # Run the update.
     for _ in range(max_iterations):
 
-        #TODO: feed new centroids back into the algorithm.
-        #TODO: Figure out what partitions is returning. Figure out how to get sample clusters back.
         updated_centroid_value,connection_groups = session.run(updated_centroids)
-
-        #print(sample_values)
-        #print(new_samples)
-        #plot_clusters(sample_values, updated_centroid_value, n_samples_per_cluster)
 
         #Stopping condition.
         if should_stop(connection_groups, updated_centroid_value,stop_threshold):
+            print("Threshold Reached.")
             break
 
-#Determining the accuracy. Note, that due to a rounding error, the ip address values are changed when paritioned
-#and so all ips are sorted into the Bad Ips.
+        #TODO: figure out if what I did works. -Caleb
+        nearest_indices = assign_to_nearest(samples,tf.constant(updated_centroid_value))
+        updated_centroids = update_centroids(samples, nearest_indices, n_clusters)
+
+
+#Determining the accuracy.
 ipFileReader = open("ips.txt", "r")
 ipString = ipFileReader.readline()
 goodIPs=[]
+badIPs=[]
 
 while True:
     ipString = ipFileReader.readline().replace("\n","")
     if(ipString == "attack ips"):
+        while True:
+            ipString = ipFileReader.readline().replace("\n","")
+            if ipString == '':
+                break
+            badIPs.append(turnIptoInt(ipString))
         break
     goodIPs.append(turnIptoInt(ipString))
 
-goodCount=0
-badCount=0
-print(goodIPs)
-for ip in connection_groups[0]:
-    if ( int(ip[0]) in goodIPs ):
-        goodCount+=1
-    else:
-        badCount+=1
 
-print("Group 1 has %s good Ips out of 100 and %s Bad Ips out of 20."%(goodCount,badCount))
+good_percentage, bad_percentage = getGoodBadIPs(connection_groups[0],goodIPs,badIPs)
+print("Group 1 has %.5s percent of the good IPs and has %.5s percent of the bad IPs."%(good_percentage,bad_percentage))
 
-goodCount=0
-badCount=0
-
-for ip in connection_groups[1]:
-    if ( int(ip[0]) in goodIPs ):
-        goodCount+=1
-    else:
-        badCount+=1
-
-print("Group 2 has %s good Ips out of 100 and %s Bad Ips out of 20." % (goodCount, badCount))
+good_percentage, bad_percentage = getGoodBadIPs(connection_groups[1],goodIPs,badIPs)
+print("Group 2 has %.5s percent of the good IPs and has %.5s percent of the bad IPs."%(good_percentage,bad_percentage))
 
 #plot
 plot_clusters(connection_groups, updated_centroid_value)

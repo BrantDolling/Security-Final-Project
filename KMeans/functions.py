@@ -132,3 +132,16 @@ def turnIptoInt(string_ip):
 #Removes the ip address from the given tensor
 def removeIps(tensor):
     return tf.slice(tensor,[0,1],[-1,4])
+
+#Returns the percentage of good Ips and Bad ips in the connection group.
+#Returns: goodIp percentage, badIp percentage
+def getGoodBadIPs(connection_group,goodIPs,badIPs):
+    goodCount = 0
+    badCount = 0
+    for ip in connection_group:
+        if (int(ip[0]) in goodIPs):
+            goodCount += 1
+        else:
+            badCount += 1
+
+    return goodCount/(len(goodIPs))*100,badCount/(len(badIPs))*100
