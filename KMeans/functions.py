@@ -27,7 +27,8 @@ def get_FTP_tensors(log_file):
 #TODO: Figure out how to determine a good threshold.
 #A stopping condition is described here :https://nlp.stanford.edu/IR-book/html/htmledition/k-means-1.html
  #Bascially take the sum of distances in each cluster and attempt to get that value below a threshold.
-def should_stop(connection_groups,centroids,threshold):
+
+def should_stop(connection_groups,centroids,threshold,prior_sum):
 
     #Calculate the sum
     sum = 0
@@ -38,10 +39,10 @@ def should_stop(connection_groups,centroids,threshold):
 
         sum += np.sum(distances)
 
-    if sum < threshold:
-        return True
+    if sum < threshold or sum==prior_sum:
+        return True, sum
     else:
-        return False
+        return False,sum
 
 def create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed):
     np.random.seed(seed)

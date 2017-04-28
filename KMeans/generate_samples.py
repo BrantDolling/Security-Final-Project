@@ -37,15 +37,16 @@ with tf.Session() as session:
     #Run the initial set up
     sample_values = session.run(samples)
     # Run the update.
+    sum=0
     for _ in range(max_iterations):
 
         updated_centroid_value,connection_groups = session.run(updated_centroids)
 
+        stop,sum = should_stop(connection_groups, updated_centroid_value,stop_threshold,sum)
         #Stopping condition.
-        if should_stop(connection_groups, updated_centroid_value,stop_threshold):
-            print("Threshold Reached.")
+        if stop:
+            print("Threshold or Convergance Reached.")
             break
-
         #TODO: figure out if what I did works. -Caleb
         nearest_indices = assign_to_nearest(samples,tf.constant(updated_centroid_value))
         updated_centroids = update_centroids(samples, nearest_indices, n_clusters)
