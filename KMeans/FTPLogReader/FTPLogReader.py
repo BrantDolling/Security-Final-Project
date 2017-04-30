@@ -44,7 +44,7 @@ class FTPLogReader:
         return float(int(netaddr.IPAddress(string_ip)))
 
     """Takes a list of ips and combines all connections within that IP list.
-       Returns: [[ip,average_datetime_difference,ok_login_average,connect_average,fail_login_average ]]"""
+       Returns: [[ip,average_datetime_difference,ok_login_average,fail_login_average,total_connections ]]"""
     def __combineConnections__(self,ips):
 
         result_list=[]
@@ -74,9 +74,10 @@ class FTPLogReader:
             for i in range(1,len(datetimes)):
                 datetime_diffs.append(datetimes[i]-datetimes[i-1])
             connection.append(reduce(lambda x, y: x + y, datetime_diffs) / float(len(datetime_diffs)))
-            connection.append(ok_login_num/total_connections)
-            connection.append(connect_num/total_connections)
-            connection.append(fail_login_num/total_connections)
+            #connection.append(ok_login_num/total_connections)
+            #connection.append(connect_num/total_connections)
+            #connection.append(fail_login_num/total_connections)
+            connection.append(total_connections)
 
             result_list.append(connection)
         return result_list

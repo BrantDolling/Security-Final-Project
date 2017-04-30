@@ -54,7 +54,7 @@ def LogIn(host,user):
             ftp.login(user[0],password)
         except ftplib.error_perm: #Don't care if we have a fail log in attempt
             pass
-    sleep(random.randint(1, 5)) #User does "stuff"
+    sleep(random.randint(user[3][0], user[3][1])) #User does "stuff"
     try:
         ftp.quit() #Will fail if the user does not log in. Don't care.
     except Exception:
@@ -68,9 +68,16 @@ def LogIn(host,user):
 def attack(host,user,ip):
     setIpAddr('eth0', ip)  # Change the ip address the user is on
     subprocess.call(["timeout",20,"hydra","-V",host,"ftp","-l",user.strip('\n\t\r '),"-P", "rockyou.txt"])
-    sleep(random.randint(1, 5))  #Let the attack run.
 
-
+"""Assuming the last element in choices is a weight, chooses an item in choices bases on weight."""
+def weighted_choice(choices):
+   total = sum(c[-1] for c in choices)
+   r = random.uniform(0, total)
+   upto = 0
+   for c in choices:
+      if upto + c[-1] >= r:
+         return c
+      upto += c[-1]
 
 def main():
     users=[]
@@ -85,14 +92,23 @@ def main():
             password = namePass[1].strip('\n')
             users.append([user,password])
 
+    #loading the ips. Assumes that ip file was written in a very specific format.
+    ips=[]
+    with open("ips.txt","r") as f:
+        for i in range(0,len(users)):
+            line = f.readline().split("\n")
+            users[i].append(line)
+
+
+
+    """
     #Generate ips
     ips=[]
     for i in range(1,len(users)+22):
         if(i==host_ip_end): continue #host ip
         ips.append(base_ip+str(i))
-
-
     #Give each user a random ip
+
     user_ips = random.sample(ips,len(users))
     for i in range(0,len(user_ips)):
         users[i].append(user_ips[i])
@@ -106,6 +122,19 @@ def main():
         f.write("attack ips\n")
         for ip in attack_ips:
             f.write(ip+"\n")
+            """
+
+    #Give each user a usage weight.
+    #And a time interval for how long they log in.
+    for user in users:
+        lower_usage = random.randint(1,3)
+        upper_usage = random.randint(4,10)
+        user.append((lower_usage,upper_usage))
+        weight = random.randint(1, 3)
+        user.append(weight)
+
+
+
 
     #Running the fake traffic
     with open("usernames.txt") as f:
@@ -113,7 +142,7 @@ def main():
 
     while(True):
         if(random.random()>0.3):
-            user= random.choice(users) #get a random user to log in
+            user= weighted_choice(users) #get a random user to log in
             print("normal log in with "+user[0])
             LogIn(base_ip+str(host_ip_end),user) #log in
         else:

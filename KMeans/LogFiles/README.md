@@ -13,11 +13,13 @@ hydra -V 192.168.56.101 ftp -l test -P rockyou.txt
 where "user" was replaced by various users, both existant and nonexistant. Note that hydra will fail to tell you if the ip address is unreachable and will attempt to attack no matter what. Due to this, one must check that the ip address is reachable before the attack.
 
 ### Log Files
-
- - normal.log : Normal connections
  
- - attack.log : Connection attempts made by hydra.
+ - sample1.log : Simple sample where users randomly log in for a period of time and then log out. 30% of connections are attacks made by hydra.
  
- - mixed.log  : Both normal connections and attempts made by hydra. Created using the FTP fake traffic creator. IP addresses are stored in ips.txt
+ - sample2.log : More complex sample where some users are more active than others. 30% of connections are made by hydra.
+ 
+ - sample3.log : Sample where only 10% of connections are attacks made by hydra.
+ 
+ - sample4.log : Sample where 80% of connections are attacks made by hydra.
  
  

@@ -16,7 +16,7 @@ from FTPLogReader.FTPLogReader import FTPLogReader
    Args:
         nclusters (int): number of clusters.
         log_file (string): FTP Log file.
-    Returns: connection_tensor """
+    Returns: connection_tensor [[ip,average_datetime_difference,ok_login_average,fail_login_average,total_connections ]]"""
 def get_FTP_tensors(log_file):
     reader = FTPLogReader(log_file, 0)
     connections = reader.getConnectionTensors()
@@ -73,10 +73,12 @@ def plot_clusters(connection_groups, centroids):
      for i, centroid in enumerate(centroids):
          #Grab just the samples for the given cluster and plot them out with a new colour
          samples = connection_groups[i]
-         plt.scatter(samples[:,1], samples[:,2]+samples[:,3]+samples[:,4], c=colour[i])
+         plt.scatter(samples[:,1], samples[:,-1], c=colour[i])
+         plt.Circle((0, 0), 2, color='r',fill=False)
+
          #Also plot centroid
-         plt.plot(centroid[0], centroid[1], markersize=35, marker="x", color='k', mew=10)
-         plt.plot(centroid[0], centroid[1], markersize=30, marker="x", color='m', mew=5)
+         plt.plot(centroid[0], centroid[-1], markersize=35, marker="x", color='k', mew=10)
+         plt.plot(centroid[0], centroid[-1], markersize=30, marker="x", color='m', mew=5)
      plt.show()
 
 #This will be the same in our final version
@@ -132,7 +134,7 @@ def turnIptoInt(string_ip):
 
 #Removes the ip address from the given tensor
 def removeIps(tensor):
-    return tf.slice(tensor,[0,1],[-1,4])
+    return tf.slice(tensor,[0,1],[-1,-1])
 
 #Returns the percentage of good Ips and Bad ips in the connection group.
 #Returns: goodIp percentage, badIp percentage
