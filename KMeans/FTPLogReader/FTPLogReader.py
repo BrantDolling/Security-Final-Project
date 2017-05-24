@@ -48,6 +48,8 @@ class FTPLogReader:
     def __combineConnections__(self,ips):
 
         result_list=[]
+        max_average_time_difference =0
+        max_total_connections = 0
         for ip in ips:
             connection=[]
             datetimes=[]
@@ -73,13 +75,27 @@ class FTPLogReader:
             datetimes.sort()
             for i in range(1,len(datetimes)):
                 datetime_diffs.append(datetimes[i]-datetimes[i-1])
-            connection.append(reduce(lambda x, y: x + y, datetime_diffs) / float(len(datetime_diffs)))
-            #connection.append(ok_login_num/total_connections)
+            if(len(datetime_diffs)>0):
+                average_time_difference = reduce(lambda x, y: x + y, datetime_diffs) / float(len(datetime_diffs))
+            else:
+                average_time_difference = 800
+            if(average_time_difference > max_average_time_difference):
+                max_average_time_difference=average_time_difference
+            connection.append(average_time_difference)
+            connection.append(ok_login_num/total_connections)
             #connection.append(connect_num/total_connections)
-            #connection.append(fail_login_num/total_connections)
+            connection.append(fail_login_num/total_connections)
             connection.append(total_connections)
+            if(total_connections>max_total_connections):
+                max_total_connections=total_connections
 
             result_list.append(connection)
+
+        #Normalize average distance with total number of connections.
+        normalize = max_average_time_difference/max_total_connections
+        print(normalize)
+        for connection in result_list:
+            connection[1] = connection[1]/normalize
         return result_list
 
 

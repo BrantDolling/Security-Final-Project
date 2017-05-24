@@ -1,6 +1,6 @@
 ###From a file, creates new linux users and passwords with administrator permissions
 
-import os
+from subprocess import Popen, PIPE, check_call
 
 __author__ = "Caleb Whitman"
 __version__ = "1.0.0"
@@ -17,7 +17,16 @@ def createUsers(users):
             namePass = line.split(';')
             user = namePass[0].strip('\n')
             password = namePass[1].strip('\n')
-            print(user)
+            check_call(['useradd', user])
+            proc = Popen(['passwd', password], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            proc.stdin.write('password\n')
+            proc.stdin.write('password')
+            proc.stdin.flush()
+            stdout, stderr = proc.communicate()
+            print (stdout)
+            print (stderr)
+
+    
 
 if __name__ == '__main__':
     createUsers("users.txt")

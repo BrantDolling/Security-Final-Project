@@ -22,4 +22,10 @@ where "user" was replaced by various users, both existant and nonexistant. Note 
  
  - sample4.log : Sample where 80% of connections are attacks made by hydra.
  
+ - sample5.log : Larger version of sample2.log
+ 
+ - attack.log : All attacks.
+ 
+ - normal.log : All use data from ten users.
+ 
  

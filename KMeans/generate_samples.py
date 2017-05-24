@@ -5,9 +5,11 @@ import numpy as np
 
 from functions import *
 
-#K means might not work
-# Might not work with categorical information: https://arxiv.org/ftp/cs/papers/0603/0603120.pdf
-# Note for report: data is influenced by initial data and does only go for local minimums
+__author__ = "Caleb Whitman"
+__version__ = "1.0.0"
+__contributors__ = ["Caleb Whitman", "Brant Dolling", "Jacob Sanderlin"]
+__email__ = "calebrwhitman@gmail.com"
+
 
 n_features = 2
 n_clusters = 2
@@ -18,11 +20,7 @@ max_iterations = 100
 stop_threshold = 1
 
 #Create variables/samples
-
-samples = get_FTP_tensors("LogFiles/mixed.log")
-with tf.Session() as session:
-    #Run the initial set up
-    sample_values = session.run(samples)
+samples = get_FTP_tensors("LogFiles/sample1.log")
 
 #real_centroids,samples = create_samples(n_clusters, n_samples_per_cluster, n_features, embiggen_factor, seed)
 initial_centroids = choose_random_centroids(samples, n_clusters)
@@ -47,7 +45,8 @@ with tf.Session() as session:
         if stop:
             print("Threshold or Convergance Reached.")
             break
-        #TODO: figure out if what I did works. -Caleb
+
+        #updating values
         nearest_indices = assign_to_nearest(samples,tf.constant(updated_centroid_value))
         updated_centroids = update_centroids(samples, nearest_indices, n_clusters)
 
@@ -70,11 +69,12 @@ while True:
     goodIPs.append(turnIptoInt(ipString))
 
 
-good_percentage, bad_percentage = getGoodBadIPs(connection_groups[0],goodIPs,badIPs)
+#Printing out the accuracy and plotting
+good_percentage, bad_percentage = getGoodBadIPCount(connection_groups,0, goodIPs, badIPs)
 print("Group 1 has %.5s percent of the good IPs and has %.5s percent of the bad IPs."%(good_percentage,bad_percentage))
 
-good_percentage, bad_percentage = getGoodBadIPs(connection_groups[1],goodIPs,badIPs)
+good_percentage, bad_percentage = getGoodBadIPCount(connection_groups,1, goodIPs, badIPs)
 print("Group 2 has %.5s percent of the good IPs and has %.5s percent of the bad IPs."%(good_percentage,bad_percentage))
 
 #plot
-plot_clusters(connection_groups, updated_centroid_value)
+plot_clusters(sample_values, updated_centroid_value,goodIPs,badIPs)

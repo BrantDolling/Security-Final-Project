@@ -1,20 +1,13 @@
 # Security-Final-Project
 
-Work in progress attempting to create a neural network to detect
-FTP password guessing attacks.
+A simple neural network designed to detect FTP Password Guessing attacks. The network uses a K-Means algorithm in order to categorize vsftpd log file connections as 
+either attacks or non-attacks. On the sample log files, the algorithm performs well, correctly identifying most attacks and normal connections.
 
-## TODO
+##Directory Layout
 
- - Create correct tensors from FTP log files.
  
- - Make new iterations work.
+ - FakeFTPTrafficCreator : Simulates both normal ftp traffic as well as attacks. Has scripts to create new users on a Linux machine and then use those users to simulate traffic.
  
- - Create a function to determine accuracy. 
- 
- - Repeatedly run and test.
- 
-## Observations/Issues
+ - K-Means : Contains code to read in vsftpd log files and then categorize the ip-source of the connections as either attacks or normal traffic.  
 
-- If clusters do not overlap, works extremely well. 
-If clusters do overlap, doesn't work at all.
 

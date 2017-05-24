@@ -93,11 +93,14 @@ def main():
             users.append([user,password])
 
     #loading the ips. Assumes that ip file was written in a very specific format.
-    ips=[]
+    attack_ips=[]
     with open("ips.txt","r") as f:
         for i in range(0,len(users)):
             line = f.readline().split("\n")
             users[i].append(line)
+        f.readline();#skipping attack_ip line
+        for line in f:
+            attack_ips.add(line.split("\n"))
 
 
 
